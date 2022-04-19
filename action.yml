@@ -1,0 +1,11 @@
+name: Markdown to Notion
+description: Load a Markdown file to a Notion page
+
+# inputs:
+
+runs:
+  using: node12
+  main: dist/index.js
+branding:
+  icon: upload
+  color: gray-dark
