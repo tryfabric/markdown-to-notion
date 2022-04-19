@@ -1,0 +1,11 @@
+name: Update major-version tags
+
+on:
+  release:
+    types: [published, edited]
+
+jobs:
+  actions-tagger:
+    runs-on: windows-2019
+    steps:
+      - uses: Actions-R-Us/actions-tagger@v2
