@@ -18238,7 +18238,7 @@ async function main() {
         notion_token: core.getInput('notion_token', { required: true }),
         notion_id: core.getInput('notion_id', { required: true }),
     };
-    const fn = path_1.default.join(__dirname, inputs.file);
+    const fn = path_1.default.join(process.env.GITHUB_WORKSPACE || '/github/workspace', inputs.file);
     core.info(`Resulting file path: ${fn}`);
     core.info('Reading Markdown file...');
     const markdown = fs_1.default.readFileSync(fn, { encoding: 'utf-8' });
