@@ -1,7 +1,16 @@
 name: Markdown to Notion
 description: Load a Markdown file to a Notion page
 
-# inputs:
+inputs:
+  file:
+    description: Path of the Markdown file to load
+    required: true
+  notion_token:
+    description: Token to use with the Notion API
+    required: true
+  notion_id:
+    description: ID of the page or block you want to append the file to
+    required: true
 
 runs:
   using: node12
