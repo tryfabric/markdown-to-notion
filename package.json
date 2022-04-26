@@ -5,7 +5,7 @@
   "private": "true",
   "scripts": {
     "test": "jest",
-    "build": "ncc build src/index.ts",
+    "build": "ncc build src/index.ts && sed -i 's/\\x0D$//' ./dist/index.js",
     "lint": "gts lint src/*",
     "release": "release-it"
   },
