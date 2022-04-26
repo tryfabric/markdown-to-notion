@@ -18204,46 +18204,65 @@ module.exports.implForWrapper = function (wrapper) {
 
 "use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const core_1 = __importDefault(__nccwpck_require__(2186));
+const core = __importStar(__nccwpck_require__(2186));
 const fs_1 = __importDefault(__nccwpck_require__(7147));
 const path_1 = __importDefault(__nccwpck_require__(1017));
 const martian_1 = __nccwpck_require__(6615);
 const client_1 = __nccwpck_require__(324);
 async function main() {
     const inputs = {
-        file: core_1.default.getInput('file', { required: true }),
-        notion_token: core_1.default.getInput('notion_token', { required: true }),
-        notion_id: core_1.default.getInput('notion_id', { required: true }),
+        file: core.getInput('file', { required: true }),
+        notion_token: core.getInput('notion_token', { required: true }),
+        notion_id: core.getInput('notion_id', { required: true }),
     };
     const fn = path_1.default.join(__dirname, inputs.file);
-    core_1.default.info(`Resulting file path: ${fn}`);
-    core_1.default.info('Reading Markdown file...');
+    core.info(`Resulting file path: ${fn}`);
+    core.info('Reading Markdown file...');
     const markdown = fs_1.default.readFileSync(fn, { encoding: 'utf-8' });
-    core_1.default.startGroup('Markdown file');
-    core_1.default.info(markdown);
-    core_1.default.endGroup();
-    core_1.default.info('Converting Markdown to Notion blocks...');
+    core.startGroup('Markdown file');
+    core.info(markdown);
+    core.endGroup();
+    core.info('Converting Markdown to Notion blocks...');
     const blocks = (0, martian_1.markdownToBlocks)(markdown);
-    core_1.default.startGroup('Notion blocks');
-    core_1.default.info(JSON.stringify(blocks, null, 2));
-    core_1.default.endGroup();
-    core_1.default.info('Creating Notion Client...');
+    core.startGroup('Notion blocks');
+    core.info(JSON.stringify(blocks, null, 2));
+    core.endGroup();
+    core.info('Creating Notion Client...');
     const client = new client_1.Client({ auth: inputs.notion_token });
-    core_1.default.info('Appending blocks...');
+    core.info('Appending blocks...');
     const res = await client.blocks.children.append({
         block_id: inputs.notion_id,
         children: blocks,
     });
-    core_1.default.startGroup('API response');
-    core_1.default.info(JSON.stringify(res, null, 2));
-    core_1.default.endGroup();
+    core.startGroup('API response');
+    core.info(JSON.stringify(res, null, 2));
+    core.endGroup();
 }
 main().catch(e => {
-    core_1.default.setFailed(e instanceof Error ? e.message : e + '');
+    core.setFailed(e instanceof Error ? e.message : e + '');
 });
 
 
