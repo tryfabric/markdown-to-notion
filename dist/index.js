@@ -18235,6 +18235,7 @@ const client_1 = __nccwpck_require__(324);
 const sync_1 = __nccwpck_require__(9248);
 async function main() {
     const inputs = {
+        delete_existing: core.getBooleanInput('delete_existing', { required: true }),
         file: core.getInput('file', { required: true }),
         notion_token: core.getInput('notion_token', { required: true }),
         notion_id: core.getInput('notion_id', { required: true }),
@@ -18255,9 +18256,13 @@ async function main() {
     const client = new client_1.Client({ auth: inputs.notion_token });
     core.info('Client created successfully.');
     core.endGroup();
-    core.startGroup('Deleting existing block');
-    await (0, sync_1.deleteExisting)(client, inputs);
-    core.endGroup();
+    if (inputs.delete_existing) {
+        core.startGroup('Deleting existing block');
+        await (0, sync_1.deleteExisting)(client, inputs);
+        core.endGroup();
+    }
+    else
+        core.info('Not trying to delete existing block.');
     core.startGroup('Appending new block');
     await (0, sync_1.appendNew)(client, inputs, blocks);
     core.endGroup();

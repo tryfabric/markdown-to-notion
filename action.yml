@@ -2,6 +2,10 @@ name: Markdown to Notion
 description: Load a Markdown file to a Notion page
 
 inputs:
+  delete_existing:
+    description: Whether to delete the existing block
+    required: false
+    default: 'true'
   file:
     description: Path of the Markdown file to load
     required: true
