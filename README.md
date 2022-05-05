@@ -11,7 +11,7 @@ By default, the action will delete the first synced block it'll find in the page
 ## Inputs
 
 ```yaml
-- uses: tryfabric/markdown-to-notion@main
+- uses: tryfabric/markdown-to-notion@v1
   with:
     # The local path of the Markdown file to load.
     file: ./your/file.md
