@@ -18232,6 +18232,7 @@ const fs_1 = __importDefault(__nccwpck_require__(7147));
 const path_1 = __importDefault(__nccwpck_require__(1017));
 const martian_1 = __nccwpck_require__(6615);
 const client_1 = __nccwpck_require__(324);
+const sync_1 = __nccwpck_require__(9248);
 async function main() {
     const inputs = {
         file: core.getInput('file', { required: true }),
@@ -18240,30 +18241,104 @@ async function main() {
     };
     const fn = path_1.default.join(process.env.GITHUB_WORKSPACE || '/github/workspace', inputs.file);
     core.info(`Resulting file path: ${fn}`);
-    core.info('Reading Markdown file...');
+    core.startGroup('Reading Markdown file');
     const markdown = fs_1.default.readFileSync(fn, { encoding: 'utf-8' });
-    core.startGroup('Markdown file');
-    core.info(markdown);
+    core.info('Files read successfully.');
+    core.debug(markdown);
     core.endGroup();
-    core.info('Converting Markdown to Notion blocks...');
+    core.startGroup('Converting Markdown to Notion blocks');
     const blocks = (0, martian_1.markdownToBlocks)(markdown);
-    core.startGroup('Notion blocks');
-    core.info(JSON.stringify(blocks, null, 2));
+    core.info(`${blocks.length} resulting Notion blocks.`);
+    core.debug(JSON.stringify(blocks, null, 2));
     core.endGroup();
-    core.info('Creating Notion Client...');
+    core.startGroup('Creating Notion Client');
     const client = new client_1.Client({ auth: inputs.notion_token });
-    core.info('Appending blocks...');
-    const res = await client.blocks.children.append({
-        block_id: inputs.notion_id,
-        children: blocks,
-    });
-    core.startGroup('API response');
-    core.info(JSON.stringify(res, null, 2));
+    core.info('Client created successfully.');
+    core.endGroup();
+    core.startGroup('Deleting existing block');
+    await (0, sync_1.deleteExisting)(client, inputs);
+    core.endGroup();
+    core.startGroup('Appending new block');
+    await (0, sync_1.appendNew)(client, inputs, blocks);
     core.endGroup();
 }
 main().catch(e => {
     core.setFailed(e instanceof Error ? e.message : e + '');
 });
+
+
+/***/ }),
+
+/***/ 9248:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.appendNew = exports.deleteExisting = void 0;
+const core = __importStar(__nccwpck_require__(2186));
+async function deleteExisting(client, inputs) {
+    let existing = await client.blocks.children.list({
+        block_id: inputs.notion_id,
+    });
+    if (existing.results.length > 1)
+        core.warning('The given page contains more than one child. The action will use the first available synced block, all other blocks will be ignored.');
+    let target = existing.results.find(b => b.type === 'synced_block');
+    while (!target && existing.has_more && existing.next_cursor) {
+        existing = await client.blocks.children.list({
+            block_id: inputs.notion_id,
+            start_cursor: existing.next_cursor,
+        });
+        target = existing.results.find(b => b.type === 'synced_block');
+    }
+    if (target) {
+        core.info('Existing synced block found.');
+        core.info('Deleting existing synced block...');
+        await client.blocks.delete({
+            block_id: target.id,
+        });
+        core.info('Block deleted successfully.');
+    }
+    else
+        core.info('No previous block found.');
+}
+exports.deleteExisting = deleteExisting;
+async function appendNew(client, inputs, blocks) {
+    await client.blocks.children.append({
+        block_id: inputs.notion_id,
+        children: [
+            {
+                type: 'synced_block',
+                synced_block: {
+                    synced_from: null,
+                    // @ts-expect-error It will complain about the fact that we're not making sure that `blocks` doesn't contain another synced_block
+                    children: blocks,
+                },
+            },
+        ],
+    });
+    core.info('New block appended successfully.');
+}
+exports.appendNew = appendNew;
 
 
 /***/ }),

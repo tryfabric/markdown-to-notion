@@ -3,9 +3,16 @@ import fs from 'fs';
 import path from 'path';
 import {markdownToBlocks} from '@tryfabric/martian';
 import {Client as NotionClient} from '@notionhq/client';
+import {appendNew, deleteExisting} from './sync';
+
+export interface Inputs {
+  file: string;
+  notion_token: string;
+  notion_id: string;
+}
 
 async function main() {
-  const inputs = {
+  const inputs: Inputs = {
     file: core.getInput('file', {required: true}),
     notion_token: core.getInput('notion_token', {required: true}),
     notion_id: core.getInput('notion_id', {required: true}),
@@ -17,28 +24,29 @@ async function main() {
   );
   core.info(`Resulting file path: ${fn}`);
 
-  core.info('Reading Markdown file...');
+  core.startGroup('Reading Markdown file');
   const markdown = fs.readFileSync(fn, {encoding: 'utf-8'});
-  core.startGroup('Markdown file');
-  core.info(markdown);
+  core.info('Files read successfully.');
+  core.debug(markdown);
   core.endGroup();
 
-  core.info('Converting Markdown to Notion blocks...');
+  core.startGroup('Converting Markdown to Notion blocks');
   const blocks = markdownToBlocks(markdown);
-  core.startGroup('Notion blocks');
-  core.info(JSON.stringify(blocks, null, 2));
+  core.info(`${blocks.length} resulting Notion blocks.`);
+  core.debug(JSON.stringify(blocks, null, 2));
   core.endGroup();
 
-  core.info('Creating Notion Client...');
+  core.startGroup('Creating Notion Client');
   const client = new NotionClient({auth: inputs.notion_token});
+  core.info('Client created successfully.');
+  core.endGroup();
 
-  core.info('Appending blocks...');
-  const res = await client.blocks.children.append({
-    block_id: inputs.notion_id,
-    children: blocks,
-  });
-  core.startGroup('API response');
-  core.info(JSON.stringify(res, null, 2));
+  core.startGroup('Deleting existing block');
+  await deleteExisting(client, inputs);
+  core.endGroup();
+
+  core.startGroup('Appending new block');
+  await appendNew(client, inputs, blocks);
   core.endGroup();
 }
 
