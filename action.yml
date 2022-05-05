@@ -16,6 +16,10 @@ inputs:
     description: ID of the page or block you want to append the file to
     required: true
 
+outputs:
+  block_id:
+    description: The ID of the new block that has been appended
+
 runs:
   using: node12
   main: dist/index.js

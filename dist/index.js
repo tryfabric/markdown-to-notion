@@ -18328,7 +18328,7 @@ async function deleteExisting(client, inputs) {
 }
 exports.deleteExisting = deleteExisting;
 async function appendNew(client, inputs, blocks) {
-    await client.blocks.children.append({
+    const res = await client.blocks.children.append({
         block_id: inputs.notion_id,
         children: [
             {
@@ -18340,8 +18340,9 @@ async function appendNew(client, inputs, blocks) {
                 },
             },
         ],
-    });
-    core.info('New block appended successfully.');
+    }), { id } = res.results[0];
+    core.info(`New block appended successfully. ID: ${id}`);
+    core.setOutput('block_id', id);
 }
 exports.appendNew = appendNew;
 

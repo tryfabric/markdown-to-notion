@@ -48,18 +48,21 @@ export async function appendNew(
   inputs: Inputs,
   blocks: BlockObjectRequest[]
 ) {
-  await client.blocks.children.append({
-    block_id: inputs.notion_id,
-    children: [
-      {
-        type: 'synced_block',
-        synced_block: {
-          synced_from: null,
-          // @ts-expect-error It will complain about the fact that we're not making sure that `blocks` doesn't contain another synced_block
-          children: blocks,
+  const res = await client.blocks.children.append({
+      block_id: inputs.notion_id,
+      children: [
+        {
+          type: 'synced_block',
+          synced_block: {
+            synced_from: null,
+            // @ts-expect-error It will complain about the fact that we're not making sure that `blocks` doesn't contain another synced_block
+            children: blocks,
+          },
         },
-      },
-    ],
-  });
-  core.info('New block appended successfully.');
+      ],
+    }),
+    {id} = res.results[0];
+
+  core.info(`New block appended successfully. ID: ${id}`);
+  core.setOutput('block_id', id);
 }
