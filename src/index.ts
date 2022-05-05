@@ -8,16 +8,16 @@ import {appendNew, deleteExisting} from './sync';
 export interface Inputs {
   delete_existing: boolean;
   file: string;
-  notion_token: string;
   notion_id: string;
+  notion_token: string;
 }
 
 async function main() {
   const inputs: Inputs = {
     delete_existing: core.getBooleanInput('delete_existing', {required: true}),
     file: core.getInput('file', {required: true}),
-    notion_token: core.getInput('notion_token', {required: true}),
     notion_id: core.getInput('notion_id', {required: true}),
+    notion_token: core.getInput('notion_token', {required: true}),
   };
 
   const fn = path.join(

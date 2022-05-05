@@ -18237,8 +18237,8 @@ async function main() {
     const inputs = {
         delete_existing: core.getBooleanInput('delete_existing', { required: true }),
         file: core.getInput('file', { required: true }),
-        notion_token: core.getInput('notion_token', { required: true }),
         notion_id: core.getInput('notion_id', { required: true }),
+        notion_token: core.getInput('notion_token', { required: true }),
     };
     const fn = path_1.default.join(process.env.GITHUB_WORKSPACE || '/github/workspace', inputs.file);
     core.info(`Resulting file path: ${fn}`);

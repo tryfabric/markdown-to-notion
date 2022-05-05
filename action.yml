@@ -9,11 +9,11 @@ inputs:
   file:
     description: Path of the Markdown file to load
     required: true
+  notion_id:
+    description: ID of the page you want to append the file to
+    required: true
   notion_token:
     description: Token to use with the Notion API
-    required: true
-  notion_id:
-    description: ID of the page or block you want to append the file to
     required: true
 
 outputs:
